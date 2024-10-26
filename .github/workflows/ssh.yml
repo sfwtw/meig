@@ -32,7 +32,7 @@ jobs:
     - name: Setup ccache
       uses: hendrikmuhs/ccache-action@v1.2
       with:
-        key: build-kernel-${{ env.DEVICE }}${{ env.UPLOADNAME }}
+        key: build-kernel
         max-size: 2G
 
     - name: Setup tmate session
