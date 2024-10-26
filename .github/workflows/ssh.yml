@@ -1,0 +1,46 @@
+name: Build Kernel on ubuntu 22.04
+on:
+  watch:
+    types: [started]
+
+  workflow_dispatch:
+    inputs:
+      debug_enabled:
+        type: boolean
+        description: 'Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)'
+        required: false
+        default: false
+jobs:
+  build:
+    name: Build by ${{ github.actor }}
+    runs-on: ubuntu-16.04
+    if: github.event.repository.owner.id == github.event.sender.id
+    env:
+      CCACHE_COMPILERCHECK: "%compiler% -dumpmachine; %compiler% -dumpversion"
+      CCACHE_NOHASHDIR: "true"
+      CCACHE_HARDLINK: "true"
+    steps:
+    - uses: actions/checkout@v3
+    - name: Prepare Configuration
+      run: |
+        echo 1
+    - name: Set swap to 10G
+      uses: pierotofy/set-swap-space@master
+      with:
+        swap-size-gb: 10
+
+    - name: Setup ccache
+      uses: hendrikmuhs/ccache-action@v1.2
+      with:
+        key: build-kernel-${{ env.DEVICE }}${{ env.UPLOADNAME }}
+        max-size: 2G
+
+    - name: Setup tmate session
+      uses: mxschmitt/action-tmate@v3
+      if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
+    
+    - name: Upload
+      uses: actions/upload-artifact@v3
+      with:
+        name: out
+        path: out
