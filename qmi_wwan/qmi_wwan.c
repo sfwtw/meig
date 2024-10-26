@@ -393,9 +393,11 @@ static int qmi_wwan_bind(struct usbnet *dev, struct usb_interface *intf)
 	/* make MAC addr easily distinguishable from an IP header */
 	if (possibly_iphdr(dev->net->dev_addr))
 	{
-		u8 *dev_addr = (u8 *)dev->net->dev_addr;
-		dev->net->dev_addr[0] |= 0x02; /* set local assignment bit */
-		dev->net->dev_addr[0] &= 0xbf; /* clear "IP" bit */
+		u8 dev_addr[ETH_ALEN];
+		memcpy(dev_addr, dev->net->dev_addr, ETH_ALEN);
+		dev_addr[0] |= 0x02; /* set local assignment bit */
+		dev_addr[0] &= 0xbf; /* clear "IP" bit */
+		memcpy(dev->net->dev_addr, dev_addr, ETH_ALEN);
 	}
 	dev->net->netdev_ops = &qmi_wwan_netdev_ops;
 
